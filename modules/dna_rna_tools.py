@@ -1,3 +1,4 @@
+# PR comment
 from typing import Tuple, Union
 
 DNA_SET, RNA_SET, NONSENCE_SET = frozenset('ATGC'), frozenset('AUGC'), frozenset('UT')
