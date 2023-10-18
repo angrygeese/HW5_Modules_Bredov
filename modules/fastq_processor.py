@@ -1,8 +1,48 @@
+import os
 from typing import Tuple, Union
 if __name__ == '__main__':
     from dna_rna_tools import check_seq, COMPLEMENT_DNA
 else:
     from .dna_rna_tools import check_seq, COMPLEMENT_DNA
+
+
+def process_paths(input_filename: str, output_filename: str = '', output_folder: str = 'results') -> str:
+    if os.path.isfile(input_filename):
+        inp_path, inp_filename = os.path.split(input_filename)
+        if output_filename and not output_filename.endswith('.fasta'):
+            output_filename += '.fasta'
+        else:
+            output_filename = inp_filename
+        output_path = os.path.join(inp_path, output_folder)
+        
+        if not os.path.exists(output_path):
+            os.mkdir(output_path) 
+        output_filename = os.path.join(inp_path, output_path, output_filename)
+    else:
+        raise FileNotFoundError("Incorrect input path: no such file or directory")    
+
+    return output_filename
+
+
+def process_file(input_path: str, fastq_dict: dict = None) -> dict:
+    if fastq_dict is None:
+        fastq_dict = {}
+    with open(input_path, mode='r') as file_read:
+        cache = []
+        for index, line in enumerate(file_read):
+            cache.append(line.strip())
+            if (index + 1) % 4 == 0:
+                name, seq, comm, phred = cache
+                fastq_dict[name] = (seq, comm, phred)
+                cache.clear()
+
+    return fastq_dict
+
+
+def save_output(fastq_dict: dict, output_filename: str):
+    with open(output_filename, mode='w') as file_write:
+        for name, (nuc_seq, comm, phred_seq) in fastq_dict.items():
+            file_write.write(f'{name}\n{nuc_seq}\n{comm}\n{phred_seq}\n')
 
 
 def is_in_range(value, val_range: Union[Tuple[int, int], int]):
@@ -50,8 +90,7 @@ def check_seq_and_bounds(seq_pair: Tuple[str, str], gc_bounds, length_bounds, qu
     exit_code, complement_dict = check_seq(nuc_seq)
     if exit_code and complement_dict == COMPLEMENT_DNA:
         gc_count, phred_count = 0, 0
-        for index, nuc_and_phred in enumerate(zip(nuc_seq, phred_seq)):
-            nuc, phred = nuc_and_phred
+        for index, (nuc, phred) in enumerate(zip(nuc_seq, phred_seq)):
             gc_count += nuc in {"G", "C"}
             phred_count += ord(phred) - 33
             if not is_in_range(index + 1, length_bounds):

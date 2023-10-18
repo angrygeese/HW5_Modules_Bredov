@@ -78,7 +78,7 @@ def run_protein_analyzer_tool(*args: str, abbreviation: int = 1) -> Tuple[list, 
     return result, corrupt_seqs
 
 
-def run_fastq_processor(*, seqs: dict, gc_bounds: Union[Tuple[int, int], int] = (0, 100), length_bounds: Tuple[int, int] = (0, 2**32), quality_thershold: int = 0):
+def run_fastq_processor(*, input_path: str, output_filename: str = None, gc_bounds: Union[Tuple[int, int], int] = (0, 100), length_bounds: Tuple[int, int] = (0, 2**32), quality_thershold: int = 0):
     """Filters reads presented in `seqs` dictionary using three metrics:
     - GC-content;
     - sequence length;
@@ -101,9 +101,11 @@ def run_fastq_processor(*, seqs: dict, gc_bounds: Union[Tuple[int, int], int] = 
         result (dict): dictionary containing elements from input dictionary
             with reads that satisfy all given metrics.
     """
-    result = {}
-    for name, seq in seqs.items():
+    output_filename = fp.process_paths(input_path, output_filename, 'fastq_filtrator_results')
+    fastq_dict, result = fp.process_file(input_path), {}
+    for name, seq in fastq_dict.items():
         is_seq_valid = fp.check_seq_and_bounds(seq, gc_bounds, length_bounds, quality_thershold)
         if is_seq_valid:
             result[name] = seq
+    result = fp.save_output(result, output_filename)
     return result
