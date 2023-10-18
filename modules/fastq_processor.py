@@ -68,7 +68,7 @@ def save_output(fastq_dict: dict, output_file: str):
         output_file (str): path to output file.
 
     Returns:
-        None
+        None.
     """
     with open(output_file, mode='w') as file_write:
         for name, (nuc_seq, comm, phred_seq) in fastq_dict.items():
@@ -94,13 +94,13 @@ def is_in_range(value, val_range: Union[Tuple[int, int], int]):
     return is_val_in_range
 
 
-def check_seq_and_bounds(seq_pair: Tuple[str, str], gc_bounds, length_bounds, quality_thershold):
+def check_seq_and_bounds(seqs: Tuple[str, str, str], gc_bounds, length_bounds, quality_thershold):
     """Counts GC-content and average quality, 
         Then checks whether both of them belong to specified intervals. 
 
     Args:
-        seq_pair (tuple): tuple containing two strings, DNA sequence and 
-            phred quality score for each position.
+        seqs (tuple): tuple containing three strings, DNA sequence, line
+            with comment and phred quality score for each position.
         gc_bounds (tuple|int): desired interval for GC-content if argument 
             is tuple; upper bound of this interval if argument is integer
             (lower will be 0).
@@ -117,7 +117,7 @@ def check_seq_and_bounds(seq_pair: Tuple[str, str], gc_bounds, length_bounds, qu
             quality belong to specified interval, othwerwise returns `False`.
             - sequence is empty.
     """
-    nuc_seq, phred_seq = seq_pair
+    nuc_seq, _, phred_seq = seqs
     exit_code, complement_dict = check_seq(nuc_seq)
     if exit_code and complement_dict == COMPLEMENT_DNA:
         gc_count, phred_count = 0, 0

@@ -99,7 +99,7 @@ def run_fastq_processor(*, input_path: str, output_filename: str = None, output_
             argument is integer (lower will be 0).
 
     Returns:
-        None
+        None.
     """
     output_filename = fp.process_paths(input_path, output_filename, output_path)
     fastq_dict, result = fp.process_file(input_path), {}
@@ -107,4 +107,4 @@ def run_fastq_processor(*, input_path: str, output_filename: str = None, output_
         is_seq_valid = fp.check_seq_and_bounds(seq, gc_bounds, length_bounds, quality_thershold)
         if is_seq_valid:
             result[name] = seq
-    result = fp.save_output(result, output_filename)
+    fp.save_output(result, output_filename)
