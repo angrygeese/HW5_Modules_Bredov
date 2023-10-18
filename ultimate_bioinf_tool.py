@@ -78,15 +78,16 @@ def run_protein_analyzer_tool(*args: str, abbreviation: int = 1) -> Tuple[list, 
     return result, corrupt_seqs
 
 
-def run_fastq_processor(*, input_path: str, output_filename: str = None, gc_bounds: Union[Tuple[int, int], int] = (0, 100), length_bounds: Tuple[int, int] = (0, 2**32), quality_thershold: int = 0):
-    """Filters reads presented in `seqs` dictionary using three metrics:
+def run_fastq_processor(*, input_path: str, output_filename: str = None, output_path: str = 'fastq_filtrator_results', gc_bounds: Union[Tuple[int, int], int] = (0, 100), length_bounds: Tuple[int, int] = (0, 2**32), quality_thershold: int = 0):
+    """Filters reads presented in input fasta file using three metrics:
     - GC-content;
     - sequence length;
     - average phred quality.
 
     Args:
-        seqs (dict): dictionary containig reads names as keys and tuple with
-            reads thenselves together with phred quality array as values.
+        input_file (str): path to input file.
+        output_filename (str): name of output file.
+        output_path (str): name of folder to store output file.
         gc_bounds (tuple|int): desired interval for GC-content if argument 
             is tuple; upper bound of this interval if argument is integer
             (lower will be 0).
@@ -98,14 +99,12 @@ def run_fastq_processor(*, input_path: str, output_filename: str = None, gc_boun
             argument is integer (lower will be 0).
 
     Returns:
-        result (dict): dictionary containing elements from input dictionary
-            with reads that satisfy all given metrics.
+        None
     """
-    output_filename = fp.process_paths(input_path, output_filename, 'fastq_filtrator_results')
+    output_filename = fp.process_paths(input_path, output_filename, output_path)
     fastq_dict, result = fp.process_file(input_path), {}
     for name, seq in fastq_dict.items():
         is_seq_valid = fp.check_seq_and_bounds(seq, gc_bounds, length_bounds, quality_thershold)
         if is_seq_valid:
             result[name] = seq
     result = fp.save_output(result, output_filename)
-    return result
