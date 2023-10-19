@@ -11,8 +11,8 @@ def process_paths(input_file: str, output_filename: str = '', output_folder: str
 
     Args:
         input_file (str): path to input file.
-        output_filename (str): name of output file.
-        output_folder (str): name of output folder.
+        output_filename (str): name of output file. Defaults to empty string.
+        output_folder (str): name of output folder. Defaults to 'results'.
 
     Returns:
         output_file (str): path to output file.
@@ -39,7 +39,8 @@ def process_file(input_file: str, fastq_dict: dict = None) -> dict:
 
     Args:
         input_file (str): path to input file.
-        fastq_dict (dict): dictionary to store content from input file.
+        fastq_dict (dict): dictionary to store content from input file. Defaults
+            to None.
 
     Returns:
         fastq_dict (dict): dictionary containig reads names as keys and tuple with
@@ -59,7 +60,7 @@ def process_file(input_file: str, fastq_dict: dict = None) -> dict:
     return fastq_dict
 
 
-def save_output(fastq_dict: dict, output_file: str):
+def save_output(fastq_dict: dict, output_file: str) -> None:
     """Writes dictionary content into file.
 
     Args:
@@ -75,7 +76,7 @@ def save_output(fastq_dict: dict, output_file: str):
             file_write.write(f'{name}\n{nuc_seq}\n{comm}\n{phred_seq}\n')
 
 
-def is_in_range(value, val_range: Union[Tuple[int, int], int]):
+def is_in_range(value, val_range: Union[Tuple[int, int], int]) -> bool:
     """Checks whether value belongs to desired interval.
 
     Args:
@@ -94,9 +95,9 @@ def is_in_range(value, val_range: Union[Tuple[int, int], int]):
     return is_val_in_range
 
 
-def check_seq_and_bounds(seqs: Tuple[str, str, str], gc_bounds, length_bounds, quality_thershold):
-    """Counts GC-content and average quality, 
-        Then checks whether both of them belong to specified intervals. 
+def check_seq_and_bounds(seqs: Tuple[str, str, str], gc_bounds, length_bounds, quality_thershold) -> bool:
+    """Counts GC-content and average quality, then checks whether both of them
+        belong to specified intervals. 
 
     Args:
         seqs (tuple): tuple containing three strings, DNA sequence, line

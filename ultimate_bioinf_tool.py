@@ -51,7 +51,7 @@ def run_protein_analyzer_tool(*args: str, abbreviation: int = 1) -> Tuple[list, 
         *args (str): various number of protein sequences terminated by
             one desired operation.
         abbrevition (ште): number of letters in aminocids abbreviation, 1 for
-            1-letter and 3 for 3-letter.
+            1-letter and 3 for 3-letter. Defaults to 1.
 
     Returns:
         tuple(result, corrupt_seqs):
@@ -79,24 +79,30 @@ def run_protein_analyzer_tool(*args: str, abbreviation: int = 1) -> Tuple[list, 
 
 
 def run_fastq_processor(*, input_path: str, output_filename: str = None, output_path: str = 'fastq_filtrator_results', gc_bounds: Union[Tuple[int, int], int] = (0, 100), length_bounds: Tuple[int, int] = (0, 2**32), quality_thershold: int = 0):
-    """Filters reads presented in input fasta file using three metrics:
-    - GC-content;
-    - sequence length;
-    - average phred quality.
+    """Filters reads presented in input fasta file into dictionary using
+        three metrics:
+        - GC-content;
+        - sequence length;
+        - average phred quality.
+        Then writes filtered reads to file named as specified by
+        `output_filename` and  stores it in `output_path` folder inside
+        directory with input file. If no output filename specified, takes
+        name of input file.
 
     Args:
         input_file (str): path to input file.
-        output_filename (str): name of output file.
-        output_path (str): name of folder to store output file.
+        output_filename (str): name of output file. Defaults to None.
+        output_path (str): name of folder to store output file. Defaults
+            to 'fastq_filtrator_results'.
         gc_bounds (tuple|int): desired interval for GC-content if argument 
             is tuple; upper bound of this interval if argument is integer
-            (lower will be 0).
+            (lower will be 0). Defaults to (0, 100).
         length_bounds (tuple|int): desired interval for sequence length if 
             argument is tuple; upper bound of this interval if argument is 
-            integer (lower will be 0).
+            integer (lower will be 0). Defaults to (0, 2**32).
         quality_thershold (tuple|int): desired interval for average phred
             quality if argument is tuple; upper bound of this interval if 
-            argument is integer (lower will be 0).
+            argument is integer (lower will be 0). Defaults to 0.
 
     Returns:
         None.
