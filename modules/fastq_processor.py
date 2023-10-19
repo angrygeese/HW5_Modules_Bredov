@@ -7,7 +7,7 @@ else:
 
 
 def process_paths(input_file: str, output_filename: str = '', output_folder: str = 'results') -> str:
-    """Checks input path and generates name and folder for  input file.
+    """Checks input path and generates name and folder for output file.
 
     Args:
         input_file (str): path to input file.
@@ -43,8 +43,8 @@ def process_file(input_file: str, fastq_dict: dict = None) -> dict:
             to None.
 
     Returns:
-        fastq_dict (dict): dictionary containig reads names as keys and tuple with
-        reads themselves together with phred quality array as values.
+        fastq_dict (dict): dictionary containig reads names as keys and tuple
+            with reads array and phred quality array.
     """
     if fastq_dict is None:
         fastq_dict = {}
@@ -64,8 +64,8 @@ def save_output(fastq_dict: dict, output_file: str) -> None:
     """Writes dictionary content into file.
 
     Args:
-        fastq_dict (dict): dictionary containig reads names as keys and tuple with
-        reads themselves together with phred quality array as values.
+        fastq_dict (dict): dictionary containig reads names as keys and tuple
+            with reads array and phred quality array as values.
         output_file (str): path to output file.
 
     Returns:
@@ -114,7 +114,7 @@ def check_seq_and_bounds(seqs: Tuple[str, str, str], gc_bounds, length_bounds, q
 
     Returns:
         exit_code (bool): returns `True` if:
-            - all three metrics - sequencelength, GC-content and average
+            - all three metrics - sequence length, GC-content and average
             quality belong to specified interval, othwerwise returns `False`.
             - sequence is empty.
     """
@@ -125,8 +125,8 @@ def check_seq_and_bounds(seqs: Tuple[str, str, str], gc_bounds, length_bounds, q
         for index, (nuc, phred) in enumerate(zip(nuc_seq, phred_seq)):
             gc_count += nuc in {"G", "C"}
             phred_count += ord(phred) - 33
-            if not is_in_range(index + 1, length_bounds):
-                return False
+        if not is_in_range(index + 1, length_bounds):
+            return False
         gc_content, quality = round(gc_count * 100 / (index + 1), 2), round(phred_count / (index + 1), 2)
         exit_code = is_in_range(gc_content, gc_bounds) and not is_in_range(quality, quality_thershold)
     return exit_code if nuc_seq else True

@@ -4,7 +4,7 @@ import modules.bio_files_processor_funcs as bfp_f
 from typing import Tuple, Union
 
 def convert_multiline_fasta_to_oneline(input_file: str, output_filename: str = '', output_path: str = 'results', replace_output: bool = True) -> None:
-    """Converts multiline fasta to oneline.
+    """Converts multiline fasta sequence to oneline.
 
     Args:
         input_file (str): path to input file.

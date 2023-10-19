@@ -78,14 +78,14 @@ def run_protein_analyzer_tool(*args: str, abbreviation: int = 1) -> Tuple[list, 
     return result, corrupt_seqs
 
 
-def run_fastq_processor(*, input_path: str, output_filename: str = None, output_path: str = 'fastq_filtrator_results', gc_bounds: Union[Tuple[int, int], int] = (0, 100), length_bounds: Tuple[int, int] = (0, 2**32), quality_thershold: int = 0):
+def run_fastq_processor(input_path: str, output_filename: str = None, output_path: str = 'fastq_filtrator_results', gc_bounds: Union[Tuple[int, int], int] = (0, 100), length_bounds: Tuple[int, int] = (0, 2**32), quality_thershold: int = 0):
     """Filters reads presented in input fasta file into dictionary using
         three metrics:
         - GC-content;
         - sequence length;
         - average phred quality.
         Then writes filtered reads to file named as specified by
-        `output_filename` and  stores it in `output_path` folder inside
+        `output_filename` and stores it in `output_path` folder inside
         directory with input file. If no output filename specified, takes
         name of input file.
 

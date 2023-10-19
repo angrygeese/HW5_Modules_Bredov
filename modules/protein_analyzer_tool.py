@@ -97,12 +97,12 @@ def seq_transform(seq: list) -> str:
 def aa_content_check(seq: str) -> dict:
     "Returns aminoacids content of the protein"
     seq_content = dict.fromkeys(AA_UNIPROT_CONTENT.keys(), 0)
-    for AAcd in seq.upper():
-        seq_content[AAcd] = seq_content[AAcd] + 1
+    for aacd in seq.upper():
+        seq_content[aacd] = seq_content[aacd] + 1
 
     seq_length = len(seq)
-    for AAcd, occurence in seq_content.items():
-        seq_content[AAcd] = 100 * occurence / seq_length
+    for aacd, occurence in seq_content.items():
+        seq_content[aacd] = 100 * occurence / seq_length
 
     return seq_content
 

@@ -9,7 +9,7 @@ TRANSCRIBE_RNA_SEQ = False
 
 
 def check_seq(seq: str, check_set: frozenset = NONSENCE_SET) -> Union[Tuple[bool, dict], None]:
-    """Checks whether the string is valid aminoacid sequence.
+    """Checks whether the string is valid nucleotide sequence.
     
     Args:
         seq (str): sequence to be checked.
