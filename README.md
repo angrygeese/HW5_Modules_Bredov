@@ -220,6 +220,7 @@ run_fastq_processor(input_path = fq_input, output_filename = 'out_fastq')
 
 - `convert_multiline_fasta_to_oneline` - converts multiline fasta sequence to oneline.
 - `change_fasta_start_pos` - Shifts starting nucleotide position to desired position for one line fasta file.
+- `select_genes_from_gbk_to_fasta` - in progress.
 
 ### Installation
 
