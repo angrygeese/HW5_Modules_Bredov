@@ -55,3 +55,41 @@ def change_fasta_start_pos(input_file: str, shift: int = 0, output_filename: str
             seq = inp_fa.readline().strip()
             fa_dict['seq'] = seq[shift:] + seq[:shift]
             bfp_f.write_seqs_dict(output_filename, fa_dict)
+
+
+# умеет доставать n трансляций до гена интереса в грязном виде
+def select_genes_from_gbk_to_fasta(input_gbk: str, genes: tuple = (), n_before: int = 3, n_after: int = 1, output_fasta: str = '', output_path: str = ''):
+    output_filename = process_paths(input_gbk, output_fasta)
+    with open(input_gbk, mode='r') as inp_gbk:
+        append_, cache = False, []
+        for line in inp_gbk:
+            line = line.strip().split()
+            if 'CDS' in line:
+                if cache:
+                    cached_lines = cache[-1][interval]
+                    if any (elem for elem in cached_lines if genes in elem):
+                        for CDS in cache:
+                            for name in CDS:
+                                cached_lines = CDS[name]
+                                trans_start = cached_lines.index(*[elem for elem in cached_lines if 'translation' in elem])
+                                translation = cached_lines[trans_start:]
+                                cached_lines.clear()
+                                cached_lines.append(''.join(translation))
+                        break
+                interval = line[1]
+                if len(cache) == n_before:
+                    del cache[0]
+                cache.append({interval: []})
+                append_ = True
+                continue
+            if 'ORIGIN' in line:
+                append_ = False
+                if cache:
+                    cached_lines = cache[-1][interval]
+                    gene = [elem for elem in cached_lines if genes in elem]
+                    if gene:
+                        break
+            if append_:
+                cache[-1][interval].extend(line)
+        return cache 
+
