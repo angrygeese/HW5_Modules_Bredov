@@ -1,5 +1,5 @@
-def write_seqs_dict(output_fasta: str, seqs_dict: dict):
-    with open(output_fasta, mode='a') as file_write:
+def write_seqs_dict(output_fasta: str, seqs_dict: dict, mode='w'):
+    with open(output_fasta, mode=mode) as file_write:
         for name in seqs_dict:
             line = seqs_dict[name]
             if line:
