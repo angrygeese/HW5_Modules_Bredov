@@ -59,7 +59,7 @@ def change_fasta_start_pos(input_file: str, shift: int = 0, output_filename: str
 
 # умеет доставать n трансляций до гена интереса в грязном виде
 def select_genes_from_gbk_to_fasta(input_gbk: str, genes: tuple = (), n_before: int = 3, n_after: int = 1, output_fasta: str = '', output_path: str = ''):
-    output_filename = process_paths(input_gbk, output_fasta)
+    output_filename = fp.process_paths(input_gbk, output_fasta)
     with open(input_gbk, mode='r') as inp_gbk:
         append_, cache = False, []
         for line in inp_gbk:
