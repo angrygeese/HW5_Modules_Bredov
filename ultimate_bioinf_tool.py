@@ -1,116 +1,207 @@
-import modules.dna_rna_tools as drt
-import modules.protein_analyzer_tool as pat
-import modules.fastq_processor as fp
-from typing import Tuple, Union
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from collections.abc import Sequence
 
 
-def run_dna_rna_tools(*args: str) -> Tuple[list, list]:
-    """Provides interface for one from four operations under each given
-        nucleotide sequence:
-        - get transcribed sequence (`transcribe` operation);
-        - get reversed sequence (`reverse` operation);
-        - get complementary sequence (`complement` operation);
-        - get reversed complementary sequence (`reverse_complement` operation);
+class BiologicalSequence(ABC):
+    @abstractmethod
+    def __len__(self):
+        pass
 
-    Args:
-        *args (str): various number of nucleotide sequences terminated by
-            one desired operation.
+    @abstractmethod
+    def __getitem__(self, index):
+        pass
 
-    Returns tuple containing two list:
-        result (list): list with operation results for each valid sequence;
-    """
-    *seqs, operation = args
-    if operation not in drt.OPERATIONS:
-        raise ValueError(f'Unknown operation `{operation}`. Please, select from: `transcribe`, `reverse`, `complement`, `reverse_complement`')
+    @abstractmethod
+    def __str__(self):
+        pass
 
-    result, corrupt_seqs = [], []
-    for seq_index, seq in enumerate(seqs):
-        is_seq_valid, complement_dict = drt.check_seq(seq)
-        if is_seq_valid:
-            result.append(drt.OPERATIONS[operation](seq, complement_dict))
-        elif not is_seq_valid:
-            corrupt_seqs.append((seq_index, seq))
+    @abstractmethod
+    def __repr__(self):
+        pass
 
-    drt.print_result(result, corrupt_seqs)
-    global TRANSCRIBE_RNA_SEQ
-    TRANSCRIBE_RNA_SEQ = False
-
-    result = result[0] if len(result) == 1 else result
-    return result
+    @abstractmethod
+    def check_alphabet(self):
+        pass
 
 
-def run_protein_analyzer_tool(*args: str, abbreviation: int = 1) -> Tuple[list, list]:
-    """Provides interface for one from five operations under each given aminoacid sequence:
-        - get aminoacid content in % (`content_check` operation);
-        - get sequence length (`seq_length` operation);
-        - get empirical formula (`protein_formula` operation)
-        - get protein mass (`protein_mass` operation)
-        - get protein charge (`charge` operation)
+class BiologicalSequenceInitializer(BiologicalSequence):
+    def __init__(self):
+        self._seq_set = None
+        self._seq = None
 
-    Args:
-        *args (str): various number of protein sequences terminated by
-            one desired operation.
-        abbrevition (ште): number of letters in aminocids abbreviation, 1 for
-            1-letter and 3 for 3-letter. Defaults to 1.
+    # инициализируем алфавит
+    @property
+    def seq_set(self) -> set:
+        return self._seq_set
 
-    Returns:
-        tuple(result, corrupt_seqs):
-            result (list): list with operation results for each valid sequence;
-            corrupt_seqs (list): list with tulpes non-valid sequences and their
-                indices;
-    """
-    *seqs, operation = args
-    if operation not in pat.OPERATIONS:
-        raise ValueError(f'Unknown operation `{operation}`. Please, select from: `content_check`, `seq_length`, `protein_formula`, `protein_mass`, `charge`')
+    @seq_set.setter
+    def seq_set(self, seq_set: set):
+        if not isinstance(seq_set, set):
+            raise TypeError("Must be a set.")
+        self._seq_set = seq_set
 
-    result, corrupt_seqs = [], []
-    for seq_index, seq in enumerate(seqs):
-        is_seq_valid, seq_alt = pat.check_and_procees_seq(seq, abbreviation)
-        if is_seq_valid:
-            result.append(pat.OPERATIONS[operation](seq_alt))
-        elif not is_seq_valid:
-            corrupt_seqs.append((seq_index, seq))
+    # инициализируем последовательность
+    @property
+    def seq(self) -> str | Sequence[str]:
+        return self._seq
 
-    pat.print_result(result, corrupt_seqs)
+    @seq.setter
+    def seq(self, seq: str | Sequence[str]):
+        if not (
+            isinstance(seq, Sequence) and all(isinstance(elem, str) for elem in seq)
+        ):
+            raise TypeError("Must be a string or sequence of string objects.")
+        if not set(seq).issubset(self._seq_set):
+            raise TypeError(
+                f"Sequence does not match alphabet for {repr(self)}. Please, use only: {self._seq_set}."
+            )
+        self._seq = seq
 
-    result = result[0] if len(result) == 1 else result
-    corrupt_seqs = corrupt_seqs[0] if len(corrupt_seqs) == 1 else corrupt_seqs
-    return result, corrupt_seqs
+    # реализуем заданные в абстрактном классе методы
+    def __len__(self):
+        return self.seq.__len__()
+
+    def __getitem__(self, index: int | slice):
+        return self.seq.__getitem__(index)
+
+    def __str__(self):
+        seq = self.seq
+        return "".join(seq) if not seq is None else ""
+
+    def __repr__(self):
+        return f"BiologicalSequenceInitializer({str(self.seq)})"
+
+    def check_alphabet(self) -> bool:
+        return set(self._seq).issubset(self._seq_set)
 
 
-def run_fastq_processor(input_path: str, output_filename: str = None, output_path: str = 'fastq_filtrator_results', gc_bounds: Union[Tuple[int, int], int] = (0, 100), length_bounds: Tuple[int, int] = (0, 2**32), quality_thershold: int = 0):
-    """Filters reads presented in input fasta file into dictionary using
-        three metrics:
-        - GC-content;
-        - sequence length;
-        - average phred quality.
-        Then writes filtered reads to file named as specified by
-        `output_filename` and stores it in `output_path` folder inside
-        directory with input file. If no output filename specified, takes
-        name of input file.
+class NucleicAcidSequence(BiologicalSequenceInitializer):
+    def __init__(self):
+        super().__init__()  # https://stackoverflow.com/a/64504667
+        self._complement_rule = None
 
-    Args:
-        input_file (str): path to input file.
-        output_filename (str): name of output file. Defaults to None.
-        output_path (str): name of folder to store output file. Defaults
-            to 'fastq_filtrator_results'.
-        gc_bounds (tuple|int): desired interval for GC-content if argument 
-            is tuple; upper bound of this interval if argument is integer
-            (lower will be 0). Defaults to (0, 100).
-        length_bounds (tuple|int): desired interval for sequence length if 
-            argument is tuple; upper bound of this interval if argument is 
-            integer (lower will be 0). Defaults to (0, 2**32).
-        quality_thershold (tuple|int): desired interval for average phred
-            quality if argument is tuple; upper bound of this interval if 
-            argument is integer (lower will be 0). Defaults to 0.
+    # инициализируем правило комплементарности
+    @property
+    def complement_rule(self) -> dict:
+        return self._complement_rule
 
-    Returns:
-        None.
-    """
-    output_filename = fp.process_paths(input_path, output_filename, output_path)
-    fastq_dict, result = fp.process_file(input_path), {}
-    for name, seq in fastq_dict.items():
-        is_seq_valid = fp.check_seq_and_bounds(seq, gc_bounds, length_bounds, quality_thershold)
-        if is_seq_valid:
-            result[name] = seq
-    fp.save_output(result, output_filename)
+    @complement_rule.setter
+    def complement_rule(self, complement_rule: dict):
+        if not isinstance(complement_rule, dict):
+            raise TypeError("Must be a dict.")
+        self._complement_rule = complement_rule
+
+    def __repr__(self):
+        return f"NucleicAcidSequence({str(self.seq)})"
+
+    def complement(self) -> RNASequence | DNASequence:
+        self_class, self_seq_class = type(self), type(self.seq)
+        complement_seq = str(self).translate(str.maketrans(self.complement_rule))
+        return self_class(self_seq_class(complement_seq))
+
+    def gc_content(self) -> float:
+        return sum(map(str(self).count, ("G", "C", "g", "c"))) / len(self)
+
+
+class RNASequence(NucleicAcidSequence):
+    def __init__(self, seq: str | Sequence[str]):
+        super().__init__()
+        self.seq_set = set("AUGCaugc")
+        self.complement_rule = dict(zip("AUGCaugc", "UACGuacg"))
+        self.seq = seq
+
+    def __repr__(self):
+        return f"RNASequence({str(self.seq)})"
+
+
+class DNASequence(NucleicAcidSequence):
+    def __init__(self, seq: str | Sequence[str]):
+        super().__init__()
+        self.seq_set = set("ATGCatgc")
+        self.complement_rule = dict(zip("ATGCatgc", "TACGtacg"))
+        self.seq = seq
+
+    def __repr__(self):
+        return f"DNASequence({self.seq})"
+
+    def transcribe(self) -> RNASequence:
+        return RNASequence(str(self).translate(str.maketrans(("Tt"), ("Uu"))))
+
+
+class AminoAcidSequence(BiologicalSequenceInitializer):
+
+    aa_uniprot_content = {
+        "A": 9.03,
+        "R": 5.84,
+        "N": 3.79,
+        "D": 5.47,
+        "C": 1.29,
+        "Q": 3.80,
+        "E": 6.24,
+        "G": 7.27,
+        "H": 2.22,
+        "I": 5.53,
+        "L": 9.85,
+        "K": 4.93,
+        "M": 2.33,
+        "F": 3.88,
+        "P": 4.99,
+        "S": 6.82,
+        "T": 5.55,
+        "W": 1.30,
+        "Y": 2.88,
+        "V": 6.86,
+    }
+
+    def __init__(self, seq: str | Sequence[str]):
+        super().__init__()
+        self.seq_set = set("ARNDCQEGHILKMFPSTWYV")
+        self.seq = seq
+
+    def __repr__(self):
+        return f"AminoAcidSequence({str(self.seq)})"
+
+    def content_check(self) -> dict:
+        "Returns aminoacids content of the protein"
+        seq_content = dict.fromkeys(AminoAcidSequence.aa_uniprot_content.keys(), 0)
+        for aacd in str(self.seq).upper():
+            seq_content[aacd] = seq_content[aacd] + 1
+
+        seq_length = len(self.seq)
+        for aacd, occurence in seq_content.items():
+            seq_content[aacd] = 100 * occurence / seq_length
+
+        return seq_content
+
+
+# def run_fastq_processor(*, input_path: str, output_filename: str = None, output_path: str = 'fastq_filtrator_results', gc_bounds: Union[Tuple[int, int], int] = (0, 100), length_bounds: Tuple[int, int] = (0, 2**32), quality_thershold: int = 0):
+#     """Filters reads presented in input fasta file using three metrics:
+#     - GC-content;
+#     - sequence length;
+#     - average phred quality.
+
+#     Args:
+#         input_file (str): path to input file.
+#         output_filename (str): name of output file.
+#         output_path (str): name of folder to store output file.
+#         gc_bounds (tuple|int): desired interval for GC-content if argument
+#             is tuple; upper bound of this interval if argument is integer
+#             (lower will be 0).
+#         length_bounds (tuple|int): desired interval for sequence length if
+#             argument is tuple; upper bound of this interval if argument is
+#             integer (lower will be 0).
+#         quality_thershold (tuple|int): desired interval for average phred
+#             quality if argument is tuple; upper bound of this interval if
+#             argument is integer (lower will be 0).
+
+#     Returns:
+#         None.
+#     """
+#     output_filename = fp.process_paths(input_path, output_filename, output_path)
+#     fastq_dict, result = fp.process_file(input_path), {}
+#     for name, seq in fastq_dict.items():
+#         is_seq_valid = fp.check_seq_and_bounds(seq, gc_bounds, length_bounds, quality_thershold)
+#         if is_seq_valid:
+#             result[name] = seq
+#     fp.save_output(result, output_filename)
