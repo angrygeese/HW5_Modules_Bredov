@@ -1,4 +1,4 @@
-# HW 6. Files
+# HW 18. Parallel Wrap Up
 > *This is the repo for the eighteenth homework of the BI Python 2023/2024 course*
 
 This repository contains three scripts and Jupyter notebook with showcases.
