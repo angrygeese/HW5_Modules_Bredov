@@ -6,22 +6,7 @@ This repository contains three scripts and Jupyter notebook with showcases.
 ## Contents
 
 * `example_data/`
-
-* `ultimate_bioinf_tool.py`
-   * `BiologicalSequence`
-   * `BiologicalSequenceInitializer`
-   * `NucleicAcidSequence`
-   * `RNASequence`
-   * `DNASequence`
-   * `AminoAcidSequence`
-
-   * `gc`
-   * `process_paths`
-   * `run_fastq_processor`
-
-   * `telegram_logger`
-
-
+* `Showcases.ipynb`
 * `bio_files_processor.py`
    * `process_paths`
    * `write_seqs_dict`
@@ -30,15 +15,22 @@ This repository contains three scripts and Jupyter notebook with showcases.
    * `select_genes_from_gbk_to_fasta`
    * `class FastaRecord`
    * `OpenFasta`
-
-
 * `custom_random_forest.py`
-   * `RandomForestClassifierCustomMT`
-   * `RandomForestClassifierCustomST`
-
-
+  * `RandomForestClassifierCustomMT`
+  * `RandomForestClassifierCustomST`
 * `requirements.txt`
-* `Showcases.ipynb`
+* `test_script.py`
+* `ultimate_bioinf_tool.py`
+   * `BiologicalSequence`
+   * `BiologicalSequenceInitializer`
+   * `NucleicAcidSequence`
+   * `RNASequence`
+   * `DNASequence`
+   * `AminoAcidSequence`
+   * `gc`
+   * `process_paths`
+   * `run_fastq_processor`
+   * `telegram_logger`
 
 ## Contacts
 
